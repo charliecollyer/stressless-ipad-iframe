@@ -41,15 +41,11 @@
     text-align: center;
     padding: 48px 16px 8px;
   }
-  #brand-header h1 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: var(--color-primary-dark);
+  #brand-header img {
+    height: 36px;
   }
   #brand-header p {
-    margin: 4px 0 0;
+    margin: 8px 0 0;
     font-size: 15px;
     font-weight: 300;
     color: var(--color-warm-grey);
@@ -132,6 +128,18 @@
     padding: 24px 0;
     color: var(--color-primary-dark);
   }
+  #newsletter-section {
+    max-width: 480px;
+    margin: 0 auto 48px;
+    padding: 0 16px;
+    text-align: center;
+  }
+  #newsletter-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--color-primary-dark);
+  }
 </style>
 </head>
 <body>
@@ -139,7 +147,7 @@
 <button id="home-btn">Home</button>
 
 <div id="brand-header">
-  <h1>Stressless</h1>
+  <img src="https://www.stressless.com/en-gb/-/media/stressless/project/website/stresslesslogo_transparent.png" alt="Stressless">
   <p>A place that moves you</p>
 </div>
 
@@ -148,6 +156,11 @@
   <div class="tile" id="tile-configurator">Product Configurator</div>
   <div class="tile" id="tile-sample-iframe">Sample Iframe</div>
   <div class="tile" id="tile-adam">Stressless Adam</div>
+</div>
+
+<div id="newsletter-section">
+  <h2>Sign up for our newsletter</h2>
+  <form id="mktoForm_523"></form>
 </div>
 
 <div id="iframe-view" class="hidden">
@@ -219,6 +232,8 @@
       return false;
     });
   });
+
+  MktoForms2.loadForm("//lp.stressless.com", "853-XWI-508", 523);
 </script>
 
 </body>
