@@ -1,8 +1,13 @@
 # Stressless iPad Iframe Test
 
-Single-page test to check whether a Stressless product/configurator page can be loaded inside an `<iframe>` (e.g. for an iPad kiosk app), or whether it's blocked by `X-Frame-Options` / `Content-Security-Policy`.
+Two static pages:
 
-**Live URL:** https://stressless-ipad-iframe.vercel.app/iframe-test.html
+- `iframe-test.html` — diagnostic test to check whether a Stressless product/configurator page can be loaded inside an `<iframe>`, or whether it's blocked by `X-Frame-Options` / `Content-Security-Policy`.
+- `kiosk-home.html` — draft kiosk home screen with two tiles: "Request Samples" (opens a modal with an embedded Marketo form, submits directly to Marketo) and "Product Configurator" (opens the configurator full-screen in an iframe). A "Home" button is always visible and returns to the tile screen.
+
+**Live URLs:**
+- https://stressless-ipad-iframe.vercel.app/iframe-test.html
+- https://stressless-ipad-iframe.vercel.app/kiosk-home.html
 
 ## How to test
 
