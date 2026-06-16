@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stressless Kiosk</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    background: #f4f3f1;
+  }
+  #home-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1000;
+    padding: 10px 20px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    background: #1c1c1c;
+    color: #fff;
+    cursor: pointer;
+  }
+  #tiles-view {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .tile {
+    width: 280px;
+    height: 280px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1c1c1c;
+    cursor: pointer;
+    padding: 24px;
+  }
+  #configurator-view {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+  }
+  #configurator-view iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+  .hidden { display: none !important; }
+  #modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  }
+  #modal-box {
+    position: relative;
+    background: #fff;
+    border-radius: 10px;
+    padding: 32px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  #modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: none;
+    background: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #888;
+  }
+  #modal-thanks {
+    text-align: center;
+    font-size: 18px;
+    padding: 24px 0;
+  }
+</style>
+</head>
+<body>
+
+<button id="home-btn">Home</button>
+
+<div id="tiles-view">
+  <div class="tile" id="tile-samples">Request Samples</div>
+  <div class="tile" id="tile-configurator">Product Configurator</div>
+</div>
+
+<div id="configurator-view" class="hidden">
+  <iframe id="configurator-frame" src=""></iframe>
+</div>
+
+<div id="modal-overlay" class="hidden">
+  <div id="modal-box">
+    <button id="modal-close">&times;</button>
+    <form id="mktoForm_1378"></form>
+    <div id="modal-thanks" class="hidden">Thanks! Your sample request has been submitted.</div>
+  </div>
+</div>
+
+<script src="//lp.stressless.com/js/forms2/js/forms2.min.js"></script>
+<script>
+  var CONFIGURATOR_URL = "https://shop.stressless.com/en-gb/recliners/stressless-adam/p/000000000001729710?pid=1729710579813333";
+
+  var tilesView = document.getElementById('tiles-view');
+  var configuratorView = document.getElementById('configurator-view');
+  var configuratorFrame = document.getElementById('configurator-frame');
+  var modalOverlay = document.getElementById('modal-overlay');
+  var modalForm = document.getElementById('mktoForm_1378');
+  var modalThanks = document.getElementById('modal-thanks');
+
+  function showHome() {
+    configuratorView.classList.add('hidden');
+    modalOverlay.classList.add('hidden');
+    tilesView.classList.remove('hidden');
+    configuratorFrame.src = '';
+    modalForm.classList.remove('hidden');
+    modalThanks.classList.add('hidden');
+  }
+
+  document.getElementById('home-btn').addEventListener('click', showHome);
+
+  document.getElementById('tile-configurator').addEventListener('click', function () {
+    tilesView.classList.add('hidden');
+    configuratorFrame.src = CONFIGURATOR_URL;
+    configuratorView.classList.remove('hidden');
+  });
+
+  document.getElementById('tile-samples').addEventListener('click', function () {
+    tilesView.classList.add('hidden');
+    modalOverlay.classList.remove('hidden');
+  });
+
+  document.getElementById('modal-close').addEventListener('click', showHome);
+
+  MktoForms2.loadForm("//lp.stressless.com", "853-XWI-508", 1378, function (form) {
+    form.onSuccess(function () {
+      modalForm.classList.add('hidden');
+      modalThanks.classList.remove('hidden');
+      setTimeout(showHome, 3000);
+      return false;
+    });
+  });
+</script>
+
+</body>
+</html>
