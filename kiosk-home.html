@@ -5,55 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stressless Kiosk</title>
 <style>
+  :root {
+    --color-primary-dark: #141923;
+    --color-primary-navy: #05143C;
+    --color-white: #ffffff;
+    --color-cream: #f5f1e9;
+    --color-sage: #b6d2c8;
+    --color-tan: #DACAAD;
+    --color-blue-grey: #9daeb3;
+    --color-warm-grey: #50504B;
+  }
   * { box-sizing: border-box; }
   html, body {
     margin: 0;
     height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-    background: #f4f3f1;
+    font-family: "Myriad Pro", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    background: var(--color-cream);
+    color: var(--color-primary-dark);
   }
   #home-btn {
     position: fixed;
     top: 16px;
     left: 16px;
     z-index: 1000;
-    padding: 10px 20px;
+    padding: 10px 22px;
     font-size: 15px;
+    font-weight: 600;
     border: none;
-    border-radius: 6px;
-    background: #1c1c1c;
-    color: #fff;
+    border-radius: 4px;
+    background: var(--color-primary-dark);
+    color: var(--color-white);
     cursor: pointer;
   }
+  #brand-header {
+    text-align: center;
+    padding: 48px 16px 8px;
+  }
+  #brand-header img {
+    height: 72px;
+  }
+  #brand-header p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--color-warm-grey);
+  }
   #tiles-view {
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 32px;
+    flex-wrap: wrap;
+    padding: 24px 32px;
   }
   .tile {
-    width: 280px;
-    height: 280px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    width: 260px;
+    height: 260px;
+    background: var(--color-white);
+    border-radius: 8px;
+    border-top: 8px solid var(--tile-accent, var(--color-sage));
+    box-shadow: 0 4px 16px rgba(20,25,35,0.12);
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
-    color: #1c1c1c;
+    color: var(--color-primary-dark);
     cursor: pointer;
     padding: 24px;
   }
-  #configurator-view {
+  #tile-samples { --tile-accent: var(--color-sage); }
+  #tile-configurator { --tile-accent: var(--color-tan); }
+  #tile-sample-iframe { --tile-accent: var(--color-blue-grey); }
+  #tile-adam { --tile-accent: var(--color-warm-grey); }
+  #iframe-view {
     position: fixed;
     inset: 0;
-    background: #fff;
+    background: var(--color-white);
   }
-  #configurator-view iframe {
+  #iframe-view iframe {
     width: 100%;
     height: 100%;
     border: none;
@@ -63,7 +94,7 @@
   #modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(20,25,35,0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,8 +102,8 @@
   }
   #modal-box {
     position: relative;
-    background: #fff;
-    border-radius: 10px;
+    background: var(--color-white);
+    border-radius: 8px;
     padding: 32px;
     width: 90%;
     max-width: 480px;
@@ -88,12 +119,82 @@
     font-size: 24px;
     line-height: 1;
     cursor: pointer;
-    color: #888;
+    color: var(--color-warm-grey);
   }
   #modal-thanks {
     text-align: center;
     font-size: 18px;
     padding: 24px 0;
+    color: var(--color-primary-dark);
+  }
+  #newsletter-section {
+    max-width: 480px;
+    margin: 0 auto 48px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center;
+  }
+  #newsletter-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--color-primary-dark);
+  }
+  /* Marketo's own ThemeStyleOverride CSS governs label/button/field design via
+     section:has(.mktoForm) etc. — only patch the parts that break in our
+     narrower embed or that are bugged in Marketo's own selectors. */
+  #newsletter-section .mktoForm {
+    width: 100% !important;
+    font-family: inherit !important;
+  }
+  #newsletter-section .mktoFormRow,
+  #newsletter-section .mktoFieldWrap {
+    width: 100% !important;
+    float: none !important;
+  }
+  /* Marketo's CSS sets width:100% + margin:20px (all sides) on .mktoFormCol,
+     which overflows a narrow container — keep their vertical rhythm, drop
+     the horizontal margin (this is exactly what their own @1024px query does). */
+  #newsletter-section .mktoFormCol {
+    margin: 20px 0 !important;
+  }
+  #newsletter-section .mktoOffset,
+  #newsletter-section .mktoGutter,
+  #newsletter-section .mktoClear {
+    display: none !important;
+  }
+  /* Marketo's selector ".mktoFieldWrap input:not[type:checkbox]" is invalid
+     CSS (missing brackets) so it never applies — fixed equivalent here. */
+  #newsletter-section .mktoFieldWrap input:not([type="checkbox"]) {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  /* Marketo's form JS defaults to a two-column "Layout Left" mode (inline
+     width:100px on the label) instead of the stacked layout the custom CSS
+     is designed for — force full width so the field wraps below it. */
+  #newsletter-section .mktoLabel {
+    width: 100% !important;
+    float: none !important;
+  }
+  /* The "Simple" theme's default button stylesheet (.mktoButtonWrap.mktoSimple
+     .mktoButton, 4 classes) beats the custom CSS's ".mktoForm button" (1 class)
+     on specificity, so the button renders green instead of navy — match the
+     custom CSS's intended colors here, scoped by ID so it wins outright. */
+  #newsletter-section .mktoButton {
+    background-color: #141923;
+    background-image: none;
+    border: none;
+  }
+  #newsletter-section .mktoButton:hover,
+  #newsletter-section .mktoButton:active {
+    background-color: #05143C;
+    background-image: none;
+    border: none;
+  }
+  #newsletter-section input.mktoField,
+  #newsletter-section select.mktoField,
+  #newsletter-section textarea.mktoField {
+    box-sizing: border-box !important;
   }
 </style>
 </head>
@@ -101,13 +202,25 @@
 
 <button id="home-btn">Home</button>
 
+<div id="brand-header">
+  <img src="https://www.stressless.com/en-gb/-/media/stressless/project/website/stresslesslogo_transparent.png" alt="Stressless">
+  <p>A place that moves you</p>
+</div>
+
 <div id="tiles-view">
   <div class="tile" id="tile-samples">Request Samples</div>
   <div class="tile" id="tile-configurator">Product Configurator</div>
+  <div class="tile" id="tile-sample-iframe">Sample Iframe</div>
+  <div class="tile" id="tile-adam">Stressless Adam</div>
 </div>
 
-<div id="configurator-view" class="hidden">
-  <iframe id="configurator-frame" src=""></iframe>
+<section id="newsletter-section">
+  <h2>Sign up for our newsletter</h2>
+  <form id="mktoForm_523"></form>
+</section>
+
+<div id="iframe-view" class="hidden">
+  <iframe id="iframe-frame" src=""></iframe>
 </div>
 
 <div id="modal-overlay" class="hidden">
@@ -121,29 +234,43 @@
 <script src="//lp.stressless.com/js/forms2/js/forms2.min.js"></script>
 <script>
   var CONFIGURATOR_URL = "https://shop.stressless.com/en-gb/recliners/stressless-adam/p/000000000001729710?pid=1729710579813333";
+  var SAMPLE_PAGE_URL = "https://www.stressless.com/en-gb/services/requestasample";
+  var ADAM_PAGE_URL = "https://www.stressless.com/en-gb/products/stresslessadam";
 
   var tilesView = document.getElementById('tiles-view');
-  var configuratorView = document.getElementById('configurator-view');
-  var configuratorFrame = document.getElementById('configurator-frame');
+  var iframeView = document.getElementById('iframe-view');
+  var iframeFrame = document.getElementById('iframe-frame');
   var modalOverlay = document.getElementById('modal-overlay');
   var modalForm = document.getElementById('mktoForm_1378');
   var modalThanks = document.getElementById('modal-thanks');
 
   function showHome() {
-    configuratorView.classList.add('hidden');
+    iframeView.classList.add('hidden');
     modalOverlay.classList.add('hidden');
     tilesView.classList.remove('hidden');
-    configuratorFrame.src = '';
+    iframeFrame.src = '';
     modalForm.classList.remove('hidden');
     modalThanks.classList.add('hidden');
+  }
+
+  function showIframe(url) {
+    tilesView.classList.add('hidden');
+    iframeFrame.src = url;
+    iframeView.classList.remove('hidden');
   }
 
   document.getElementById('home-btn').addEventListener('click', showHome);
 
   document.getElementById('tile-configurator').addEventListener('click', function () {
-    tilesView.classList.add('hidden');
-    configuratorFrame.src = CONFIGURATOR_URL;
-    configuratorView.classList.remove('hidden');
+    showIframe(CONFIGURATOR_URL);
+  });
+
+  document.getElementById('tile-sample-iframe').addEventListener('click', function () {
+    showIframe(SAMPLE_PAGE_URL);
+  });
+
+  document.getElementById('tile-adam').addEventListener('click', function () {
+    showIframe(ADAM_PAGE_URL);
   });
 
   document.getElementById('tile-samples').addEventListener('click', function () {
@@ -161,6 +288,8 @@
       return false;
     });
   });
+
+  MktoForms2.loadForm("//lp.stressless.com", "853-XWI-508", 523);
 </script>
 
 </body>
