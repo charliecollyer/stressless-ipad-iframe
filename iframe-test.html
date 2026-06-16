@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosk Iframe Test</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    background: #f4f3f1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  #status-bar {
+    padding: 12px 16px;
+    font-size: 14px;
+    background: #e2e2e2;
+    border-bottom: 1px solid #ccc;
+    transition: background 0.2s ease;
+  }
+  #controls {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    flex-wrap: wrap;
+  }
+  #url-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+  }
+  button {
+    padding: 8px 14px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    background: #1c1c1c;
+    color: #fff;
+    cursor: pointer;
+  }
+  #checklist {
+    padding: 10px 16px;
+    background: #fff8e6;
+    border-bottom: 1px solid #e6d9a8;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  #frame-wrap {
+    flex: 1;
+    position: relative;
+    background: repeating-conic-gradient(#fafafa 0% 25%, #eee 0% 50%) 50% / 20px 20px;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+
+<div id="status-bar">Starting test…</div>
+
+<div id="controls">
+  <input id="url-input" value="https://shop.stressless.com/en-gb/recliners/stressless-adam/p/000000000001729710?pid=1729710579813333">
+  <button id="load-btn">Load URL</button>
+  <button id="reload-btn">Reload current</button>
+</div>
+
+<div id="checklist">
+  <strong>How to read this:</strong> the checkered area below should fill with the actual Stressless page. If it stays checkered/blank, framing is blocked.
+  If content does appear, manually: 1) interact with a configurator option and confirm it responds, 2) add something to cart, then hit "Reload current" and see if the cart count still shows it — that tells you whether session/cookies survive inside the iframe on this device.
+</div>
+
+<div id="frame-wrap">
+  <iframe id="test-frame" src=""></iframe>
+</div>
+
+<script>
+  const frame = document.getElementById('test-frame');
+  const status = document.getElementById('status-bar');
+  const urlInput = document.getElementById('url-input');
+  let loadTimer;
+
+  function setStatus(text, state) {
+    status.textContent = text;
+    status.style.background = state === 'ok' ? '#d4edda' : state === 'bad' ? '#f8d7da' : '#e2e2e2';
+  }
+
+  function startTest(url) {
+    setStatus('Loading… (waiting up to 6s for a load event)', null);
+    frame.src = url;
+    clearTimeout(loadTimer);
+    loadTimer = setTimeout(() => {
+      setStatus('⚠️ No load event after 6s. Likely blocked by X-Frame-Options/CSP — but could just be slow. Check the area below visually.', 'bad');
+    }, 6000);
+  }
+
+  frame.addEventListener('load', () => {
+    clearTimeout(loadTimer);
+    setStatus('Load event fired — but this can fire even when blocked (blank doc). Look below: is real content visible, or is it still checkered/blank?', 'ok');
+  });
+
+  document.getElementById('load-btn').addEventListener('click', () => startTest(urlInput.value.trim()));
+  document.getElementById('reload-btn').addEventListener('click', () => startTest(frame.src || urlInput.value.trim()));
+
+  startTest(urlInput.value.trim());
+</script>
+
+</body>
+</html>
