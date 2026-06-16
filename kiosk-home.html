@@ -42,7 +42,7 @@
     padding: 48px 16px 8px;
   }
   #brand-header img {
-    height: 36px;
+    height: 72px;
   }
   #brand-header p {
     margin: 8px 0 0;
@@ -51,13 +51,12 @@
     color: var(--color-warm-grey);
   }
   #tiles-view {
-    min-height: calc(100% - 120px);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 32px;
     flex-wrap: wrap;
-    padding: 32px;
+    padding: 24px 32px;
   }
   .tile {
     width: 260px;
@@ -139,6 +138,65 @@
     font-weight: 600;
     margin: 0 0 8px;
     color: var(--color-primary-dark);
+  }
+  #newsletter-section .mktoForm {
+    width: 100% !important;
+    font-family: inherit !important;
+  }
+  #newsletter-section .mktoFormRow,
+  #newsletter-section .mktoFormCol,
+  #newsletter-section .mktoFieldWrap {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+    float: none !important;
+  }
+  #newsletter-section .mktoOffset,
+  #newsletter-section .mktoGutter,
+  #newsletter-section .mktoClear {
+    display: none !important;
+  }
+  #newsletter-section .mktoLabel {
+    float: none !important;
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--color-primary-dark) !important;
+    margin-bottom: 4px !important;
+  }
+  #newsletter-section .mktoField {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    font-size: 15px !important;
+  }
+  #newsletter-section .mktoButtonRow {
+    display: block !important;
+    text-align: center !important;
+    margin-top: 4px !important;
+  }
+  #newsletter-section .mktoButtonWrap {
+    margin: 0 !important;
+  }
+  #newsletter-section .mktoButton {
+    background: var(--color-primary-dark) !important;
+    color: var(--color-white) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 10px 28px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+  }
+  #newsletter-section .mktoAsterix {
+    color: #b3261e !important;
+  }
+  #newsletter-section .mktoErrorMsg {
+    color: #b3261e !important;
+    font-size: 12px !important;
   }
 </style>
 </head>
