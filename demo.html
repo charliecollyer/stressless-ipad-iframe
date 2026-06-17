@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stressless® Studio Kiosk — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden;
+    font-family: "Source Sans 3", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: radial-gradient(120% 120% at 50% 0%, #ECE7DA 0%, #F5F1E9 45%, #E3DCCB 100%);
+  }
+
+  /* Stage centres and scales the device to fit the window */
+  .stage {
+    width: 100vw; height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 24px;
+  }
+  .scaler { transform: scale(var(--scale, 1)); transform-origin: center center; }
+
+  /* iPad Pro 11" landscape — 1194 × 834 screen */
+  .ipad {
+    position: relative;
+    padding: 22px;                 /* bezel thickness */
+    background: #1b1d22;
+    border-radius: 44px;
+    box-shadow:
+      0 2px 0 2px #2a2d33 inset,
+      0 50px 90px -30px rgba(20,25,35,.55),
+      0 20px 40px -20px rgba(20,25,35,.35);
+  }
+  .ipad-screen {
+    width: 1194px; height: 834px;
+    border-radius: 24px; overflow: hidden; background: #F5F1E9;
+  }
+  .ipad-screen iframe { width: 1194px; height: 834px; border: none; display: block; }
+  /* Front camera dot, centred on the long (top) bezel for landscape */
+  .ipad::before {
+    content: ""; position: absolute; top: 50%; left: 10px; transform: translateY(-50%);
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #34373d; box-shadow: 0 0 0 1px rgba(255,255,255,.04);
+  }
+
+  .caption {
+    font-weight: 400; font-size: 13px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: #50504B; opacity: .8;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scaler" id="scaler">
+      <div class="ipad">
+        <div class="ipad-screen">
+          <iframe src="kiosk-home.html" title="Stressless Studio Kiosk"></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Stressless® Studio Kiosk · live preview</div>
+  </div>
+
+  <script>
+    // Scale the whole device down to fit the browser window (never up past 1:1).
+    var scaler = document.getElementById('scaler');
+    var DEVICE_W = 1238;  // 1194 screen + 2 × 22 bezel
+    var DEVICE_H = 878;
+    var MARGIN = 96;      // breathing room + caption
+    function fit() {
+      var s = Math.min(
+        (window.innerWidth  - 40)      / DEVICE_W,
+        (window.innerHeight - MARGIN)  / DEVICE_H,
+        1
+      );
+      scaler.style.setProperty('--scale', s);
+    }
+    window.addEventListener('resize', fit);
+    fit();
+  </script>
+</body>
+</html>

@@ -1,295 +1,429 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stressless Kiosk</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Stressless®">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#141923">
+<title>Stressless® Studio Kiosk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <style>
+  /* ── Brand tokens (Stressless Brand Guidelines 2025) ─────────────── */
   :root {
-    --color-primary-dark: #141923;
-    --color-primary-navy: #05143C;
-    --color-white: #ffffff;
-    --color-cream: #f5f1e9;
-    --color-sage: #b6d2c8;
-    --color-tan: #DACAAD;
-    --color-blue-grey: #9daeb3;
-    --color-warm-grey: #50504B;
+    --slate:#141923; --white:#FFFFFF; --norway:#05143C; --steel:#50504B;
+    --leather:#8C735A; --oak:#DACAAD; --beech:#F5F1E9; --willow:#B6D2C8;
+    --glacier:#9DAEB3; --orange:#EB5F0A; --canvas:#ECE7DA;
+    --accent:#05143C; /* default accent (Norway Blue) */
   }
-  * { box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; }
   html, body {
-    margin: 0;
-    height: 100%;
-    font-family: "Myriad Pro", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-    background: var(--color-cream);
-    color: var(--color-primary-dark);
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: var(--beech);
+    font-family: "Source Sans 3", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--slate);
   }
-  #home-btn {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 1000;
-    padding: 10px 22px;
-    font-size: 15px;
-    font-weight: 600;
-    border: none;
-    border-radius: 4px;
-    background: var(--color-primary-dark);
-    color: var(--color-white);
-    cursor: pointer;
-  }
-  #brand-header {
-    text-align: center;
-    padding: 48px 16px 8px;
-  }
-  #brand-header img {
-    height: 72px;
-  }
-  #brand-header p {
-    margin: 8px 0 0;
-    font-size: 15px;
-    font-weight: 300;
-    color: var(--color-warm-grey);
-  }
-  #tiles-view {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 32px;
-    flex-wrap: wrap;
-    padding: 24px 32px;
-  }
-  .tile {
-    width: 260px;
-    height: 260px;
-    background: var(--color-white);
-    border-radius: 8px;
-    border-top: 8px solid var(--tile-accent, var(--color-sage));
-    box-shadow: 0 4px 16px rgba(20,25,35,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--color-primary-dark);
-    cursor: pointer;
-    padding: 24px;
-  }
-  #tile-samples { --tile-accent: var(--color-sage); }
-  #tile-configurator { --tile-accent: var(--color-tan); }
-  #tile-sample-iframe { --tile-accent: var(--color-blue-grey); }
-  #tile-adam { --tile-accent: var(--color-warm-grey); }
-  #iframe-view {
-    position: fixed;
-    inset: 0;
-    background: var(--color-white);
-  }
-  #iframe-view iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
+  button { -webkit-tap-highlight-color: transparent; font-family: inherit; }
+  h2 { margin: 0; }
+  input::placeholder { color: rgba(80,80,75,.58); }
+  input:focus { outline: none; }
   .hidden { display: none !important; }
-  #modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(20,25,35,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
+  @keyframes chairIn {
+    from { opacity: 0; transform: translateX(-28px); }
+    to   { opacity: 1; transform: translateX(0); }
   }
-  #modal-box {
-    position: relative;
-    background: var(--color-white);
-    border-radius: 8px;
-    padding: 32px;
-    width: 90%;
-    max-width: 480px;
-    max-height: 85vh;
-    overflow-y: auto;
+
+  /* ── Page shell ──────────────────────────────────────────────────── */
+  .kiosk {
+    width: 100vw; height: 100vh; background: var(--beech); color: var(--slate);
+    padding: 26px 40px 30px; display: flex; flex-direction: column; overflow: hidden;
   }
-  #modal-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    border: none;
-    background: none;
-    font-size: 24px;
-    line-height: 1;
-    cursor: pointer;
-    color: var(--color-warm-grey);
+
+  /* Status bar */
+  .statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 4px; font-size: 13px; font-weight: 600; color: var(--slate);
+    opacity: .58; height: 22px;
   }
-  #modal-thanks {
-    text-align: center;
-    font-size: 18px;
-    padding: 24px 0;
-    color: var(--color-primary-dark);
+  .statusbar svg { display: block; }
+
+  /* Header */
+  .header {
+    display: flex; justify-content: space-between; align-items: center; margin: 10px 0 20px;
   }
-  #newsletter-section {
-    max-width: 480px;
-    margin: 0 auto 48px;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    text-align: center;
+  .wordmark { display: flex; flex-direction: column; gap: 4px; line-height: 1; }
+  .wordmark .mark {
+    font-style: italic; font-weight: 300; font-size: 28px; color: var(--slate); letter-spacing: .5px;
   }
-  #newsletter-section h2 {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 8px;
-    color: var(--color-primary-dark);
+  .wordmark .claim {
+    font-weight: 400; font-size: 8.4px; letter-spacing: 3.5px; text-transform: uppercase;
+    color: var(--slate); opacity: .7; white-space: nowrap;
   }
-  /* Marketo's own ThemeStyleOverride CSS governs label/button/field design via
-     section:has(.mktoForm) etc. — only patch the parts that break in our
-     narrower embed or that are bugged in Marketo's own selectors. */
-  #newsletter-section .mktoForm {
-    width: 100% !important;
-    font-family: inherit !important;
+  .header .greeting {
+    font-weight: 400; font-size: 13px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--steel);
   }
-  #newsletter-section .mktoFormRow,
-  #newsletter-section .mktoFieldWrap {
-    width: 100% !important;
-    float: none !important;
+
+  /* Main tile grid */
+  .grid { flex: 1; display: grid; grid-template-columns: 1.45fr 1fr; gap: 20px; min-height: 0; }
+  .col-right { display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 20px; min-height: 0; }
+
+  /* Hero tile */
+  .hero {
+    background: var(--slate); color: var(--white); border-radius: 18px; cursor: pointer;
+    padding: 40px 44px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: space-between; height: 100%;
+    box-shadow: 0 2px 4px rgba(20,25,35,.06);
+    transition: transform .2s ease, box-shadow .2s ease;
   }
-  /* Marketo's CSS sets width:100% + margin:20px (all sides) on .mktoFormCol,
-     which overflows a narrow container — keep their vertical rhythm, drop
-     the horizontal margin (this is exactly what their own @1024px query does). */
-  #newsletter-section .mktoFormCol {
-    margin: 20px 0 !important;
+  .hero:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(20,25,35,.22); }
+  .hero-photo {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 52%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 38%);
+    mask-image: linear-gradient(to right, transparent 0%, black 38%);
+    animation: chairIn 1.6s cubic-bezier(.25,.46,.45,.94) forwards;
   }
-  #newsletter-section .mktoOffset,
-  #newsletter-section .mktoGutter,
-  #newsletter-section .mktoClear {
-    display: none !important;
+  .hero-photo img {
+    width: 100%; height: 100%; display: block; object-fit: cover; object-position: center;
+    transform: scaleX(-1);
   }
-  /* Marketo's selector ".mktoFieldWrap input:not[type:checkbox]" is invalid
-     CSS (missing brackets) so it never applies — fixed equivalent here. */
-  #newsletter-section .mktoFieldWrap input:not([type="checkbox"]) {
-    width: 100% !important;
-    box-sizing: border-box !important;
+  .hero-badge {
+    align-self: flex-start; width: 78px; height: 78px; border-radius: 50%;
+    border: 1.5px solid var(--white); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; z-index: 1;
   }
-  /* Marketo's form JS defaults to a two-column "Layout Left" mode (inline
-     width:100px on the label) instead of the stacked layout the custom CSS
-     is designed for — force full width so the field wraps below it. */
-  #newsletter-section .mktoLabel {
-    width: 100% !important;
-    float: none !important;
+  .hero-badge span { font-weight: 300; font-size: 24px; line-height: 1; color: var(--white); }
+  .hero-body { position: relative; z-index: 1; max-width: 360px; }
+  .hero-eyebrow {
+    font-weight: 400; font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
+    opacity: .68; margin-bottom: 12px;
   }
-  /* The "Simple" theme's default button stylesheet (.mktoButtonWrap.mktoSimple
-     .mktoButton, 4 classes) beats the custom CSS's ".mktoForm button" (1 class)
-     on specificity, so the button renders green instead of navy — match the
-     custom CSS's intended colors here, scoped by ID so it wins outright. */
-  #newsletter-section .mktoButton {
-    background-color: #141923;
-    background-image: none;
-    border: none;
+  .hero-title { font-weight: 300; font-size: 48px; line-height: 1; margin-bottom: 14px; white-space: nowrap; }
+  .hero-copy { font-weight: 300; font-size: 17.5px; line-height: 1.35; opacity: .84; margin-bottom: 26px; max-width: 400px; }
+  .hero-cta {
+    background: #f5f0eb; color: var(--slate); border: none; border-radius: 999px;
+    padding: 15px 34px; font-weight: 600; font-size: 13px; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center;
+    gap: 10px; white-space: nowrap;
   }
-  #newsletter-section .mktoButton:hover,
-  #newsletter-section .mktoButton:active {
-    background-color: #05143C;
-    background-image: none;
-    border: none;
+
+  /* Secondary tiles */
+  .tile {
+    border-radius: 14px; color: var(--slate); cursor: pointer; padding: 20px 22px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    height: 100%; gap: 14px; position: relative; overflow: hidden;
+    box-shadow: 0 1px 2px rgba(20,25,35,.05);
+    transition: transform .18s ease, box-shadow .18s ease;
   }
-  #newsletter-section input.mktoField,
-  #newsletter-section select.mktoField,
-  #newsletter-section textarea.mktoField {
-    box-sizing: border-box !important;
+  .tile:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(20,25,35,.16); }
+  .tile-oak { background: var(--oak); }
+  .tile-willow { background: var(--willow); }
+  .tile-glacier { background: var(--glacier); }
+  .tile-label { font-weight: 600; font-size: 19px; line-height: 1.05; }
+  .tile-sub { font-weight: 300; font-size: 13.5px; opacity: .72; margin-top: 5px; line-height: 1.25; }
+  .tile-go {
+    position: absolute; top: 20px; right: 22px; opacity: .5;
+    transition: opacity .18s, transform .18s;
+  }
+  .tile:hover .tile-go { opacity: .95; transform: translateX(3px); }
+
+  /* Prize draw + newsletter */
+  .news {
+    background: var(--white); border-radius: 16px; margin-top: 20px; padding: 22px 32px;
+    display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: center;
+  }
+  .news-pill {
+    display: inline-flex; align-items: center; gap: 8px; background: var(--beech);
+    border-radius: 999px; padding: 5px 13px; font-weight: 600; font-size: 11px;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  }
+  .news-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .news h2 { font-weight: 300; font-size: 29px; line-height: 1.05; margin-bottom: 9px; color: var(--slate); }
+  .news-copy { font-weight: 300; font-size: 15.5px; line-height: 1.4; color: var(--steel); margin: 0; max-width: 360px; }
+
+  /* Newsletter form */
+  .nl-form { display: flex; flex-direction: column; gap: 11px; }
+  .nl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  .nl-form input[type="text"], .nl-form input[type="email"] {
+    background: var(--white); color: var(--slate); border: 1.5px solid rgba(20,25,35,.18);
+    border-radius: 10px; padding: 13px 16px; font-weight: 400; font-size: 15.5px;
+    width: 100%; transition: border-color .15s;
+  }
+  .nl-form input.err { border-color: var(--orange); }
+  .nl-consent {
+    display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+    font-weight: 300; font-size: 13px; color: var(--steel); line-height: 1.4;
+  }
+  .nl-consent input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; border-radius: 3px; }
+  .nl-consent input.err { outline: 2px solid var(--orange); }
+  .nl-submit {
+    background: var(--slate); color: var(--white); border: none; border-radius: 999px;
+    padding: 14px 32px; font-weight: 600; font-size: 13px; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer;
+  }
+  .nl-done { display: flex; flex-direction: column; gap: 12px; color: var(--slate); }
+  .nl-done-check {
+    width: 50px; height: 50px; border-radius: 50%; background: var(--accent);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .nl-done-title { font-weight: 300; font-size: 28px; line-height: 1.05; }
+  .nl-done-sub { font-weight: 300; font-size: 16px; color: var(--steel); line-height: 1.4; }
+
+  /* Full-screen iframe view + Home button */
+  #iframe-view { position: fixed; inset: 0; background: var(--white); z-index: 1500; }
+  #iframe-view iframe { width: 100%; height: 100%; border: none; display: block; }
+  #home-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 1600;
+    width: 64px; height: 64px; border-radius: 50%; border: none;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--slate); color: var(--white); cursor: pointer;
+    box-shadow: 0 8px 24px rgba(20,25,35,.35);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  #home-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(20,25,35,.4); }
+  #home-btn:active { transform: translateY(0); }
+
+  /* Placeholder modal (catalogue / samples) */
+  #placeholder-overlay {
+    position: fixed; inset: 0; background: rgba(20,25,35,.6);
+    display: flex; align-items: center; justify-content: center; z-index: 2000;
+  }
+  #placeholder-box {
+    position: relative; background: var(--white); border-radius: 16px; padding: 40px 44px;
+    width: 90%; max-width: 420px; text-align: center;
+  }
+  #placeholder-box h3 { margin: 0 0 10px; font-weight: 300; font-size: 26px; color: var(--slate); }
+  #placeholder-box p { margin: 0; font-weight: 300; font-size: 15.5px; color: var(--steel); line-height: 1.4; }
+  #placeholder-close {
+    position: absolute; top: 12px; right: 14px; border: none; background: none;
+    font-size: 26px; line-height: 1; cursor: pointer; color: var(--steel);
   }
 </style>
 </head>
 <body>
 
-<button id="home-btn">Home</button>
+<div class="kiosk">
 
-<div id="brand-header">
-  <img src="https://www.stressless.com/en-gb/-/media/stressless/project/website/stresslesslogo_transparent.png" alt="Stressless">
-  <p>A place that moves you</p>
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span>9:41</span>
+    <span style="display:flex; gap:7px; align-items:center;">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+        <rect x="0" y="7" width="3" height="5" rx="1"/>
+        <rect x="5" y="4" width="3" height="8" rx="1"/>
+        <rect x="10" y="1.5" width="3" height="10.5" rx="1"/>
+        <rect x="15" y="0" width="3" height="12" rx="1" opacity="0.35"/>
+      </svg>
+      <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke="currentColor" stroke-width="1">
+        <rect x="1" y="1" width="17" height="10" rx="2.5"/>
+        <rect x="3" y="3" width="12" height="6" rx="1" fill="currentColor"/>
+        <rect x="19" y="4" width="2" height="4" rx="1" fill="currentColor"/>
+      </svg>
+    </span>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="wordmark">
+      <span class="mark">Stressless®</span>
+      <span class="claim">A place that moves you</span>
+    </div>
+    <span class="greeting">Studio kiosk · Welcome</span>
+  </header>
+
+  <!-- Main tile grid -->
+  <div class="grid">
+    <!-- Hero -->
+    <div class="hero" id="tile-adam">
+      <div class="hero-photo"><img src="adam.jpg" alt="Stressless® Adam"></div>
+      <span class="hero-badge"><span>new</span></span>
+      <div class="hero-body">
+        <div class="hero-eyebrow">The chair beside you</div>
+        <div class="hero-title">Stressless® Adam</div>
+        <div class="hero-copy">Take a closer look at the model in front of you — frames, leathers, functions and the story behind the comfort.</div>
+        <button class="hero-cta" id="explore-adam">
+          Explore Adam
+          <svg width="18" height="18" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 24h26M27 15l9 9-9 9"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="col-right">
+      <div class="tile tile-oak" id="tile-catalogue">
+        <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M24 12c-3-2.2-7-3-12-3v27c5 0 9 .8 12 3 3-2.2 7-3 12-3V9c-5 0-9 .8-12 3Z"/>
+          <path d="M24 12v27"/><path d="M14 17h5M14 23h5M29 17h5M29 23h5"/>
+        </svg>
+        <div>
+          <div class="tile-label">Order a catalogue</div>
+          <div class="tile-sub">Browse the full collection at home.</div>
+        </div>
+        <span class="tile-go"><svg width="20" height="20" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 24h26M27 15l9 9-9 9"/></svg></span>
+      </div>
+
+      <div class="tile tile-willow" id="tile-samples">
+        <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="8" width="14" height="14" rx="2"/><rect x="26" y="8" width="14" height="14" rx="2"/>
+          <rect x="8" y="26" width="14" height="14" rx="2"/><rect x="26" y="26" width="14" height="14" rx="2"/>
+        </svg>
+        <div>
+          <div class="tile-label">Order your samples</div>
+          <div class="tile-sub">Feel the leathers &amp; fabrics yourself.</div>
+        </div>
+        <span class="tile-go"><svg width="20" height="20" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 24h26M27 15l9 9-9 9"/></svg></span>
+      </div>
+
+      <div class="tile tile-glacier" id="tile-design">
+        <svg width="34" height="34" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 38l4-1 20-20a2.8 2.8 0 0 0-4-4L10 33l-1 4Z"/>
+          <path d="M29 13l4 4M10 33l4 4"/>
+        </svg>
+        <div>
+          <div class="tile-label">Design your own</div>
+          <div class="tile-sub">Frame, leather, base — your way.</div>
+        </div>
+        <span class="tile-go"><svg width="20" height="20" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 24h26M27 15l9 9-9 9"/></svg></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prize draw + newsletter (Marketo placeholder — local form for now) -->
+  <section class="news">
+    <div>
+      <div class="news-pill"><span class="dot"></span>Prize draw</div>
+      <h2>Win the chair you’re sitting beside</h2>
+      <p class="news-copy">Join our list and you could win a Stressless® Adam recliner in the leather of your choice. Drawn every quarter.</p>
+    </div>
+
+    <form class="nl-form" id="nl-form" novalidate>
+      <div class="nl-row">
+        <input type="text" id="nl-first" placeholder="First name">
+        <input type="text" id="nl-last" placeholder="Surname">
+      </div>
+      <input type="email" id="nl-email" placeholder="Email address">
+      <label class="nl-consent">
+        <input type="checkbox" id="nl-consent">
+        Yes, keep me updated by email and enter me into the prize draw. I can unsubscribe anytime — see our privacy notice.
+      </label>
+      <div style="margin-top:2px;">
+        <button type="submit" class="nl-submit">Sign me up</button>
+      </div>
+    </form>
+
+    <div class="nl-done hidden" id="nl-done">
+      <div class="nl-done-check">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>
+      </div>
+      <div class="nl-done-title" id="nl-done-title">You're in the draw.</div>
+      <div class="nl-done-sub">Watch your inbox — we'll only send things worth opening.</div>
+    </div>
+  </section>
+
 </div>
 
-<div id="tiles-view">
-  <div class="tile" id="tile-samples">Request Samples</div>
-  <div class="tile" id="tile-configurator">Product Configurator</div>
-  <div class="tile" id="tile-sample-iframe">Sample Iframe</div>
-  <div class="tile" id="tile-adam">Stressless Adam</div>
-</div>
-
-<section id="newsletter-section">
-  <h2>Sign up for our newsletter</h2>
-  <form id="mktoForm_523"></form>
-</section>
-
+<!-- Full-screen iframe view -->
+<button id="home-btn" class="hidden" aria-label="Home">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 11l9-8 9 8"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9 21v-6h6v6"/>
+  </svg>
+</button>
 <div id="iframe-view" class="hidden">
   <iframe id="iframe-frame" src=""></iframe>
 </div>
 
-<div id="modal-overlay" class="hidden">
-  <div id="modal-box">
-    <button id="modal-close">&times;</button>
-    <form id="mktoForm_1378"></form>
-    <div id="modal-thanks" class="hidden">Thanks! Your sample request has been submitted.</div>
+<!-- Placeholder modal -->
+<div id="placeholder-overlay" class="hidden">
+  <div id="placeholder-box">
+    <button id="placeholder-close">&times;</button>
+    <h3>Coming soon</h3>
+    <p id="placeholder-text">This will be wired up shortly.</p>
   </div>
 </div>
 
-<script src="//lp.stressless.com/js/forms2/js/forms2.min.js"></script>
 <script>
+  /* Destinations carried over from the previous kiosk build. */
+  var ADAM_PAGE_URL    = "https://www.stressless.com/en-gb/products/stresslessadam";
   var CONFIGURATOR_URL = "https://shop.stressless.com/en-gb/recliners/stressless-adam/p/000000000001729710?pid=1729710579813333";
-  var SAMPLE_PAGE_URL = "https://www.stressless.com/en-gb/services/requestasample";
-  var ADAM_PAGE_URL = "https://www.stressless.com/en-gb/products/stresslessadam";
 
-  var tilesView = document.getElementById('tiles-view');
-  var iframeView = document.getElementById('iframe-view');
+  var iframeView  = document.getElementById('iframe-view');
   var iframeFrame = document.getElementById('iframe-frame');
-  var modalOverlay = document.getElementById('modal-overlay');
-  var modalForm = document.getElementById('mktoForm_1378');
-  var modalThanks = document.getElementById('modal-thanks');
-
-  function showHome() {
-    iframeView.classList.add('hidden');
-    modalOverlay.classList.add('hidden');
-    tilesView.classList.remove('hidden');
-    iframeFrame.src = '';
-    modalForm.classList.remove('hidden');
-    modalThanks.classList.add('hidden');
-  }
+  var homeBtn     = document.getElementById('home-btn');
+  var phOverlay   = document.getElementById('placeholder-overlay');
+  var phText      = document.getElementById('placeholder-text');
 
   function showIframe(url) {
-    tilesView.classList.add('hidden');
     iframeFrame.src = url;
     iframeView.classList.remove('hidden');
+    homeBtn.classList.remove('hidden');
+  }
+  function showHome() {
+    iframeView.classList.add('hidden');
+    homeBtn.classList.add('hidden');
+    iframeFrame.src = '';
+  }
+  function showPlaceholder(msg) {
+    phText.textContent = msg;
+    phOverlay.classList.remove('hidden');
   }
 
-  document.getElementById('home-btn').addEventListener('click', showHome);
-
-  document.getElementById('tile-configurator').addEventListener('click', function () {
-    showIframe(CONFIGURATOR_URL);
-  });
-
-  document.getElementById('tile-sample-iframe').addEventListener('click', function () {
-    showIframe(SAMPLE_PAGE_URL);
-  });
-
-  document.getElementById('tile-adam').addEventListener('click', function () {
+  // Adam landing page (hero tile + Explore button)
+  document.getElementById('tile-adam').addEventListener('click', function () { showIframe(ADAM_PAGE_URL); });
+  document.getElementById('explore-adam').addEventListener('click', function (e) {
+    e.stopPropagation();
     showIframe(ADAM_PAGE_URL);
   });
 
+  // Product configurator
+  document.getElementById('tile-design').addEventListener('click', function () { showIframe(CONFIGURATOR_URL); });
+
+  // Placeholders (no destination yet)
+  document.getElementById('tile-catalogue').addEventListener('click', function () {
+    showPlaceholder('Catalogue ordering will be available here soon.');
+  });
   document.getElementById('tile-samples').addEventListener('click', function () {
-    tilesView.classList.add('hidden');
-    modalOverlay.classList.remove('hidden');
+    showPlaceholder('Sample ordering will be available here soon.');
   });
 
-  document.getElementById('modal-close').addEventListener('click', showHome);
-
-  MktoForms2.loadForm("//lp.stressless.com", "853-XWI-508", 1378, function (form) {
-    form.onSuccess(function () {
-      modalForm.classList.add('hidden');
-      modalThanks.classList.remove('hidden');
-      setTimeout(showHome, 3000);
-      return false;
-    });
+  homeBtn.addEventListener('click', showHome);
+  document.getElementById('placeholder-close').addEventListener('click', function () {
+    phOverlay.classList.add('hidden');
+  });
+  phOverlay.addEventListener('click', function (e) {
+    if (e.target === phOverlay) phOverlay.classList.add('hidden');
   });
 
-  MktoForms2.loadForm("//lp.stressless.com", "853-XWI-508", 523);
+  /* Newsletter — local placeholder form (validates, then shows confirmation).
+     Swap this handler for the Marketo embed when ready. */
+  var form = document.getElementById('nl-form');
+  var first = document.getElementById('nl-first');
+  var last = document.getElementById('nl-last');
+  var email = document.getElementById('nl-email');
+  var consent = document.getElementById('nl-consent');
+
+  [first, last, email].forEach(function (el) {
+    el.addEventListener('input', function () { el.classList.remove('err'); });
+  });
+  consent.addEventListener('change', function () { consent.classList.remove('err'); });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ok = true;
+    if (!first.value.trim()) { first.classList.add('err'); ok = false; }
+    if (!last.value.trim()) { last.classList.add('err'); ok = false; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)) { email.classList.add('err'); ok = false; }
+    if (!consent.checked) { consent.classList.add('err'); ok = false; }
+    if (!ok) return;
+
+    document.getElementById('nl-done-title').textContent = "You're in the draw, " + first.value.trim() + ".";
+    form.classList.add('hidden');
+    document.getElementById('nl-done').classList.remove('hidden');
+  });
 </script>
 
 </body>
